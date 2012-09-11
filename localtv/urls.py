@@ -19,6 +19,7 @@ from django.conf.urls.defaults import patterns, include, url
 from django.contrib.auth.models import User
 from django.views.generic import ListView
 
+from localtv.admin.riff import admin
 from localtv.api.v1 import api as api_v1
 from localtv.listing.views import CompatibleListingView, SiteListView
 from localtv.models import Category
@@ -87,7 +88,7 @@ urlpatterns += patterns(
     url(r'^accounts/', include('registration.backends.default.urls')),
     url(r'^thumbs/', include('daguerre.urls')),
     url(r'^admin/edit_attributes/', include('localtv.inline_edit.urls')),
-    url(r'^admin/', include('localtv.admin.urls')),
+    url(r'^admin/', include(admin.get_urls_tuple())),
     url(r'^submit_video/', include('localtv.submit_video.urls')),
     url(r'^listing/', include('localtv.listing.urls')),
     url(r'^feeds/', include('localtv.feeds.urls')),

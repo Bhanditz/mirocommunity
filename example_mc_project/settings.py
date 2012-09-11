@@ -190,6 +190,7 @@ INSTALLED_APPS = (
     'daguerre',
     'compressor',
     'mptt',
+    'djam',
 )
 
 if USE_SOUTH:
