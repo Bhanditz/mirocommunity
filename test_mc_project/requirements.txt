@@ -1,3 +1,4 @@
+git+git://github.com/pculture/mirocommunity.git#egg=localtv
 git+http://git.participatoryculture.org/djpagetabs@master#egg=djpagetabs
 git+http://git.participatoryculture.org/django-email-share/@master#egg=django_email_share
 git+http://git.participatoryculture.org/django-uploadtemplate@2a429693f343514d4d9ca824c7093990ffc87f51#egg=django_uploadtemplate
