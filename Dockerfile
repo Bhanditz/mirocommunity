@@ -1,7 +1,7 @@
 # Mirocommunity
 #
 # VERSION   0.1
-FROM ubuntu:13.04
+FROM ubuntu:12.10
 MAINTAINER Filip Jukić <filip@appsembler.com>
 
 RUN apt-get update
