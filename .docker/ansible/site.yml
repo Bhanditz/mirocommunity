@@ -1,0 +1,8 @@
+---
+- hosts: docker
+  vars:
+    app_name: mirocommunity
+  remote_user: root
+  roles:
+    - common
+    - miroapp

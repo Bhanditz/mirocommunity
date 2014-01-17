@@ -1,0 +1,26 @@
+---
+
+project_name: mirocommunity
+project_user: mirocommunity
+project_group: www-data
+project_root: /opt/mirocommunity
+project_venv: /opt/venv/mirocommunity/
+  
+
+django:
+  settings: test_project.settings
+  wsgi: test_project.wsgi
+  port: 8000
+  # absolute path to the root of your django project
+  # in my case this is where the manage.py lives
+  # It's also where the SCM module dumps your project
+  root: "{{project_root}}/test_project"
+  requirements: "{{project_root}}/test_project/requirements.txt"
+
+nginx:
+  ssl:
+    private: files+'ssl/production'
+    public: files+'ssl/production.pub'
+
+  servernames:
+    - "example.com"

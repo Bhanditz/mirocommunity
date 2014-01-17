@@ -1,0 +1,15 @@
+[supervisord]
+nodaemon=true
+
+[program:nginx]
+command=/usr/sbin/nginx -c /etc/nginx/nginx.conf
+stdout_logfile=/var/log/%(program_name)s.log
+stderr_logfile=/var/log/%(program_name)s.log
+autorestart=true
+
+[program:uwsgi]
+command=/usr/local/bin/uwsgi --chdir={{ django.root }} --module={{django.wsgi}}:application --env DJANGO_SETTINGS_MODULE={{django.settings}} --virtualenv=/opt/venv/{{project_name}} --master --pidfile=/tmp/project-master.pid --socket :{{django.port}} --processes=5 --harakiri=20 --max-requests=2000 --vacuum
+directory={{ django.root }}
+stdout_logfile=/var/log/%(program_name)s.log
+stderr_logfile=/var/log/%(program_name)s.log
+autorestart=true

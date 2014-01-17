@@ -1,0 +1,10 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Update APT and install common packages
+  apt: name={{item}} state=present update_cache=yes cache_valid_time=3600
+  with_items:
+    - vim
+    - git-core
+    - python-apt
+    - python-pycurl

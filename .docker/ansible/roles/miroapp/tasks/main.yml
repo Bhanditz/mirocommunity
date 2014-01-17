@@ -1,0 +1,71 @@
+---
+# This playbook contains common plays that will be run on all nodes.
+
+- name: Add Nginx PPA repo
+  apt_repository: repo='ppa:nginx/stable'
+
+- name: Update APT
+  apt: update_cache=yes
+
+- name: Install required system packages.
+  apt: pkg={{item}} state=present
+  with_items:
+    - build-essential
+    - python-dev
+    - python-setuptools
+    - mysql-client
+    - libmysqlclient-dev
+    - libjpeg-dev
+    - python-dev
+    - libxml2-dev
+    - libxslt1-dev
+    - gcc
+
+- name: Install pip
+  easy_install: name=pip
+
+- name: Clean pip cache
+  file: path=/tmp/pip_build_root state=absent
+
+- name: Update python-setuptools
+  pip: name={{item}} state=latest extra_args='--no-use-wheel'
+  with_items:
+    - setuptools
+
+- name: Clone application code from GitHub
+  git: repo=https://github.com/pculture/mirocommunity.git dest=/opt/mirocommunity version=1.10.X
+
+- name: Install latest nginx
+  apt: pkg=nginx state=latest
+
+- name: Ensure that nginx does not have a default configuration
+  file: path=/etc/nginx/sites-enabled/default state=absent
+
+- name: Install nginx configuration file.
+  template: src=miro.conf.j2 dest=/etc/nginx/sites-enabled/{{project_name}}
+
+- name: Set nginx to nodeamon mode
+  lineinfile: dest=/etc/nginx/nginx.conf line="daemon off;" state=present insertafter=EOF
+
+- name: Create logs folder
+  file: path={{project_root}}/logs state=directory
+
+- name: Install required python system packages.
+  pip: name={{item}} 
+  with_items:
+    - uwsgi
+    - mysql-python
+    - virtualenv
+    - supervisor
+
+- name: Install project requirements.
+  pip: requirements={{ django.requirements }} virtualenv={{project_venv}} extra_args='--allow-all-external --allow-unverified PIL' 
+
+- name: Copy supervisor configuration file
+  template: src=supervisor.conf.j2 dest=/etc/supervisor.conf
+
+- name: Copy Django production settings
+  copy: src=production_settings.py dest={{django.root}}/test_project/production_settings.py
+
+- name: Enable production settings in django
+  lineinfile: dest={{ django.root}}/test_project/settings.py line="from production_settings import *" state=present insertafter=EOF
