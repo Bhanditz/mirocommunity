@@ -16,6 +16,9 @@
     - mysql-client
     - libmysqlclient-dev
     - libjpeg-dev
+    - libfreetype6-dev 
+    - zlib1g-dev
+    - libpng12-dev
     - python-dev
     - libxml2-dev
     - libxslt1-dev
@@ -25,7 +28,7 @@
   easy_install: name=pip
 
 - name: Clean pip cache
-  file: path=/tmp/pip_build_root state=absent
+  file: path=/opt/venv/mirocommunity/build state=absent
 
 - name: Update python-setuptools
   pip: name={{item}} state=latest extra_args='--no-use-wheel'
@@ -33,7 +36,7 @@
     - setuptools
 
 - name: Clone application code from GitHub
-  git: repo=https://github.com/pculture/mirocommunity.git dest=/opt/mirocommunity version=1.10.X
+  git: repo=https://github.com/appsembler/mirocommunity.git dest=/opt/mirocommunity version=1.10.X
 
 - name: Install latest nginx
   apt: pkg=nginx state=latest
@@ -54,18 +57,30 @@
   pip: name={{item}} 
   with_items:
     - uwsgi
-    - mysql-python
     - virtualenv
     - supervisor
 
 - name: Install project requirements.
   pip: requirements={{ django.requirements }} virtualenv={{project_venv}} extra_args='--allow-all-external --allow-unverified PIL' 
 
+- name: Install additional needed python packages
+  pip: name={{item}} virtualenv={{project_venv}}
+  with_items:
+    - mysql-python
+    - django-haystack==2.0.0
+    - pyelasticsearch==0.5
+
+- name: Install Miro Community
+  pip: name='git+https://github.com/appsembler/mirocommunity.git@1.10.X#egg=mirocommunity' extra_args='--no-deps' virtualenv={{project_venv}}
+
 - name: Copy supervisor configuration file
   template: src=supervisor.conf.j2 dest=/etc/supervisor.conf
 
 - name: Copy Django production settings
-  copy: src=production_settings.py dest={{django.root}}/test_project/production_settings.py
+  template: src=production_settings.py dest={{django.root}}/test_project/production_settings.py
 
 - name: Enable production settings in django
   lineinfile: dest={{ django.root}}/test_project/settings.py line="from production_settings import *" state=present insertafter=EOF
+
+- name: Collect static files
+  django_manage: command=collectstatic virtualenv={{project_venv}} settings=test_project.settings app_path={{django.root}}
