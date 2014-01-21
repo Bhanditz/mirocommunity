@@ -20,7 +20,17 @@ server {
 
     location /static {
         alias {{ django.root }}/test_project/static/;
+        expires 1M;
         autoindex off;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+    location /media {
+        alias {{ django.root }}/test_project/media/;
+        expires 10d;
+        autoindex off;
+        access_log off;
+        add_header Cache-Control "public";
     }
 
     location / {

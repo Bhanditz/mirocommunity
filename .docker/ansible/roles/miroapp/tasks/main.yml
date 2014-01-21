@@ -54,14 +54,20 @@
   file: path={{project_root}}/logs state=directory
 
 - name: Install required python system packages.
-  pip: name={{item}} 
+  pip: name={{item}}
   with_items:
     - uwsgi
     - virtualenv
     - supervisor
 
 - name: Install project requirements.
-  pip: requirements={{ django.requirements }} virtualenv={{project_venv}} extra_args='--allow-all-external --allow-unverified PIL' 
+  pip: requirements={{ django.requirements }} virtualenv={{project_venv}} extra_args='--allow-all-external --allow-unverified PIL'
+
+- name: Uninstall PIL (not needed because of Pillow)
+  pip: name=PIL state=absent virtualenv={{project_venv}}
+
+- name: Force Pillow reinstall
+  pip: name=Pillow==2.3.0 virtualenv={{project_venv}} extra_args="--force-reinstall"
 
 - name: Install additional needed python packages
   pip: name={{item}} virtualenv={{project_venv}}
@@ -77,7 +83,7 @@
   template: src=supervisor.conf.j2 dest=/etc/supervisor.conf
 
 - name: Copy Django production settings
-  template: src=production_settings.py dest={{django.root}}/test_project/production_settings.py
+  copy: src=production_settings.py dest={{django.root}}/test_project/production_settings.py
 
 - name: Enable production settings in django
   lineinfile: dest={{ django.root}}/test_project/settings.py line="from production_settings import *" state=present insertafter=EOF
